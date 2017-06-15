@@ -1,0 +1,179 @@
+unit BinTree;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs;
+
+type
+    TItem = integer; // тип информационного поля
+
+    TTree =^ TNode;
+    TNode = record
+      Data: TItem;
+      Left: TTree;
+      Right: TTree;
+    end;
+
+  procedure make(var Work: TTree; x: TItem);          // создание нового узла
+  procedure InsertNode(Work: TTree; x: TItem);        // добовление нового узла в дерево
+ // procedure DeleteNode(Work: TTree; var x: TItem);
+  procedure Preorder(Work: TTree; var str: String);   // обход дерева
+  procedure Inorder(Work: TTree; var str: String);   // обход дерева
+  procedure Order(Work: TTree; var str: String);   // обход дерева
+  function MinTree(Work: TTree): TItem;               // нахождение минимального узла в дереве
+  function MaxTree(Work: TTree): TItem;               // нахождение максимального узла в дереве
+  procedure FindInTree(Work: TTree; x: TItem; var f: boolean; var Work1: TTree);
+  procedure DepthTree(Work: TTree; sum: Cardinal; var max: Cardinal);
+implementation
+
+// функция возвращает ИСТИНУ если дерево пустое, и ЛОЖЬ в противном случае
+function EmptyTree(Work: TTree): boolean;
+begin
+  if Work=nil then
+    Result:=true
+  else
+    Result:=false;
+end;
+
+// процедура создания нового узла
+procedure make(var Work: TTree; x: TItem);
+begin
+  New(Work);
+  Work^.Data:=x;
+  Work^.Left:=nil;
+  Work^.Right:=nil;
+end;
+
+// процедура добовления нового узла
+procedure InsertNode(Work: TTree; x: TItem);
+var Work1: TTree;
+begin
+  // проверка, не пустое ли дерево
+  if EmptyTree(Work) then
+    begin
+      ShowMessage('Дерево пустое!!!');
+      exit;
+    end;
+  while Work<>nil do  // нахождение место вставки нового узла
+    begin
+      Work1:=Work;   // запаминаем предыдущий узел
+      if x<Work^.Data then
+        Work:=Work^.Left
+      else
+        Work:=Work^.Right;
+    end;
+  Work:=Work1;
+  make(Work1,x);  // создаем новый узел
+  if x<Work^.Data then  // проверко в какое поддерево нужно вставить новый узел
+    Work^.Left:=Work1
+  else
+    Work^.Right:=Work1;
+end;
+
+// процедура обхода дерева
+procedure preorder(Work: TTree; var str: string);
+begin
+  if Work<>nil then
+    begin
+      str:=str+IntToStr(Work^.Data)+' ';
+      preorder(Work^.Left,str);
+      preorder(Work^.Right,str);
+    end;
+end;
+
+// процедура обхода дерева
+procedure inorder(Work: TTree; var str: string);
+begin
+  if Work<>nil then
+    begin
+      inorder(Work^.Left,str);
+      str:=str+IntToStr(Work^.Data)+' ';
+      inorder(Work^.Right,str);
+    end;
+end;
+
+// процедура обхода дерева
+procedure order(Work: TTree; var str: string);
+begin
+  if Work<>nil then
+    begin
+      order(Work^.Left,str);
+      order(Work^.Right,str);
+      str:=str+IntToStr(Work^.Data)+' ';
+    end;
+end;
+
+// функция нахождения минимума в дереве
+function MinTree(Work: TTree): TItem;
+begin
+  // проверка, не пустое ли дерево
+  if EmptyTree(Work) then
+    begin
+      ShowMessage('Дерево пустое!!!');
+      exit;
+    end;
+  while Work^.Left<>nil do
+    Work:=Work^.Left;
+  Result:=Work^.Data;
+end;
+
+// функция нахождения максимума в дереве
+function MaxTree(Work: TTree): TItem;
+begin
+  // проверка, не пустое ли дерево
+  if EmptyTree(Work) then
+    begin
+      ShowMessage('Дерево пустое!!!');
+      exit;
+    end;
+  while Work^.Right<>nil do
+    Work:=Work^.Right;
+  Result:=Work^.Data;
+end;
+
+procedure FindInTree(Work: TTree; x: TItem; var f: boolean; var Work1: TTree);
+begin
+  // проверка, не пустое ли дерево
+  if EmptyTree(Work) then
+    begin
+      ShowMessage('Дерево пустое!!!');
+      exit;
+    end;
+  f:=false;   // предполагаем, что искомого элемента нет в дереве
+  while Work<>nil do
+    begin
+      if Work^.Data=x then
+        begin
+          Work1:=Work;   // возвращаем ссылку на найденный элемент
+          f:=true;
+          break;
+        end
+      else
+        begin
+          if x<Work^.Data then
+            Work:=Work^.Left
+          else
+            Work:=Work^.Right;
+        end;
+    end;
+end;
+
+// функция нахождения глубины дерева
+procedure DepthTree(Work: TTree; sum: Cardinal; var max: Cardinal);
+begin
+  if Work<>nil then
+    begin
+      inc(sum);
+      DepthTree(Work^.Left,sum,max);
+      DepthTree(Work^.Right,sum,max);
+    end
+  else
+    if sum>max then
+      max:=sum;
+end;
+
+
+end.
+ 
